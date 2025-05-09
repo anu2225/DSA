@@ -1,0 +1,247 @@
+
+Lab Assignment No 5
+
+Code:
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+// Node class definition
+class Node {
+public:
+    string key, value;
+    Node *left, *right;
+
+    // Default constructor
+    Node() {
+        key = "";
+        value = "";
+        left = right = nullptr;
+    }
+
+    // Parameterized constructor
+    Node(string key, string value) {
+        this->key = key;
+        this->value = value;
+        left = right = nullptr;
+    }
+};
+
+// Binary Search Tree class definition
+class BST {
+public:
+    Node *root;
+
+    BST() {
+        root = nullptr;
+    }
+
+    // Insert a new node with the given key-value pair
+    bool insert(string key, string value) {
+        if (root == nullptr) {
+            root = new Node(key, value);
+            return true;
+        }
+
+        Node *temp = root, *prev = nullptr;
+        while (temp != nullptr) {
+            prev = temp;
+            if (temp->key == key) {
+                return false;  // Keyword already exists
+            }
+            else if (temp->key < key) {
+                temp = temp->right;
+            } else {
+                temp = temp->left;
+            }
+        }
+
+        // Insert new node
+        if (prev->key < key) {
+            prev->right = new Node(key, value);
+        } else {
+            prev->left = new Node(key, value);
+        }
+        return true;
+    }
+
+    // Search for a keyword and return its meaning
+    string search(string key) {
+        Node *temp = root;
+        while (temp != nullptr) {
+            if (temp->key == key) {
+                return temp->value;
+            } else if (temp->key < key) {
+                temp = temp->right;
+            } else {
+                temp = temp->left;
+            }
+        }
+        return ""; // Return empty string if key is not found
+    }
+
+    // Update a keyword's meaning
+    bool update(string key, string value) {
+        Node *temp = root;
+        while (temp != nullptr) {
+            if (temp->key == key) {
+                temp->value = value;
+                return true;
+            } else if (temp->key < key) {
+                temp = temp->right;
+            } else {
+                temp = temp->left;
+            }
+        }
+        return false; // Return false if key is not found
+    }
+
+    // Delete a keyword
+    bool delete_key(string key) {
+        root = delete_key(root, key);
+        return true;
+    }
+
+    // Helper function to delete a keyword node
+    Node* delete_key(Node* root, string key) {
+        if (root == nullptr) {
+            return root;
+        }
+
+        if (key < root->key) {
+            root->left = delete_key(root->left, key);
+        } else if (key > root->key) {
+            root->right = delete_key(root->right, key);
+        } else {
+            // Node with the key found
+
+            // Node with only one child or no child
+            if (root->left == nullptr) {
+                Node* temp = root->right;
+                delete root;
+                return temp;
+            } else if (root->right == nullptr) {
+                Node* temp = root->left;
+                delete root;
+                return temp;
+            }
+
+            // Node with two children: Get the inorder successor (smallest in the right subtree)
+            Node* temp = findMin(root->right);
+            root->key = temp->key;
+            root->value = temp->value;
+            root->right = delete_key(root->right, temp->key);
+        }
+        return root;
+    }
+
+    // Find the minimum node (used for deletion)
+    Node* findMin(Node* root) {
+        while (root && root->left != nullptr) {
+            root = root->left;
+        }
+        return root;
+    }
+
+    // Display the dictionary in ascending order (inorder traversal)
+    void display(Node* cur) {
+        if (cur == nullptr) {
+            return;
+        }
+        display(cur->left);
+        cout << cur->key << ": " << cur->value << endl;
+        display(cur->right);
+    }
+
+    // Public method to start display
+    void display() {
+        display(root);
+    }
+};
+
+// Main function to demonstrate functionality
+int main() {
+    BST tree;
+    int ch;
+    string k, v, ans;
+
+    do {
+        cout << "--- MAIN MENU ---" << endl;
+        cout << "1-> Insert" << endl;
+        cout << "2-> Search" << endl;
+        cout << "3-> Update" << endl;
+        cout << "4-> Delete" << endl;
+        cout << "5-> Display Ascending" << endl;
+        cout << "0-> Exit" << endl;
+        cout << "Choose an option (0-5): ";
+        cin >> ch;
+        cin.ignore();  // To ignore any leftover newline character in the input buffer
+
+        switch (ch) {
+            case 1:
+                cout << "Key (word) to insert: ";
+                cin >> k;
+                cin.ignore();  // Clear the input buffer before reading multi-word string
+                cout << "Value (meaning): ";
+                getline(cin, v);  // Allow user to enter multiple words for meaning
+                if (tree.insert(k, v)) {
+                    cout << "Element insertion successful." << endl;
+                } else {
+                    cout << "Element already exists." << endl;
+                }
+                break;
+
+            case 2:
+                cout << "Key (word) to search: ";
+                cin >> k;
+                ans = tree.search(k);
+                if (ans == "") {
+                    cout << "Element does not exist." << endl;
+                } else {
+                    cout << "Value (meaning) is: " << ans << endl;
+                }
+                break;
+
+            case 3:
+                cout << "Key (word) to update: ";
+                cin >> k;
+                cin.ignore();  // Clear the input buffer
+                cout << "New value (meaning): ";
+                getline(cin, v);  // Allow multi-word meaning input
+                if (tree.update(k, v)) {
+                    cout << "Data updated successfully." << endl;
+                } else {
+                    cout << "Element not found for update." << endl;
+                }
+                break;
+
+            case 4:
+                cout << "Key (word) to delete: ";
+                cin >> k;
+                if (tree.delete_key(k)) {
+                    cout << "Element deleted successfully." << endl;
+                } else {
+                    cout << "Element not found for deletion." << endl;
+                }
+                break;
+
+            case 5:
+                cout << "Data in ascending order:" << endl;
+                tree.display();
+                break;
+
+            case 0:
+                break;
+
+            default:
+                cout << "Please choose a valid option (0-5)." << endl;
+                break;
+        }
+    } while (ch != 0);
+
+    cout << "// END OF CODE" << endl;
+
+    return 0;
+}
+
